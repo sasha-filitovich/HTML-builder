@@ -52,21 +52,21 @@ fs.promises
     fs.promises.writeFile(path.join(__dirname, 'project-dist', 'style.css'), data.join('\n'));
   });
 
-function deleteDir(dir) {
-  fs.promises.readdir(dir, { withFileTypes: true }).then((files) => {
-    if (!files.length) {
-      fs.promises.rmdir(dir);
-    }
-    for (let file of files) {
-      if (file.isFile()) {
-        fs.promises.rm(dir, file.name);
-      } else {
-        deleteDir(path.join(dir, file.name));
-      }
-    }
-  });
-}
-deleteDir(path.join(__dirname, 'project-dist', 'assets'));
+// function deleteDir(dir) {
+//   fs.promises.readdir(dir, { withFileTypes: true }).then((files) => {
+//     if (!files.length) {
+//       fs.promises.rmdir(dir);
+//     }
+//     for (let file of files) {
+//       if (file.isFile()) {
+//         fs.promises.rm(dir, file.name);
+//       } else {
+//         deleteDir(path.join(dir, file.name));
+//       }
+//     }
+//   });
+// }
+// deleteDir(path.join(__dirname, 'project-dist', 'assets'));
 // fs.promises.mkdir(path.join(__dirname, 'project-dist', 'assets'), { recursive: true });
 
 // fs.promises
