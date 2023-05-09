@@ -50,56 +50,45 @@ fs.promises
   )
   .then((data) => {
     fs.promises.writeFile(path.join(__dirname, 'project-dist', 'style.css'), data.join('\n'));
+  })
+  .then(() => deleteDir(path.join(__dirname, 'project-dist', 'assets')))
+  .then(() =>
+    copyFile(path.join(__dirname, 'assets'), path.join(__dirname, 'project-dist', 'assets'))
+  );
+
+function deleteDir(dir) {
+  return fs.promises.readdir(dir, { withFileTypes: true }).then(
+    (files) => {
+      if (!files.length) {
+        return fs.promises.rmdir(dir);
+      } else {
+        return Promise.all(
+          files.map((file) => {
+            if (file.isFile()) {
+              return fs.promises.rm(path.join(dir, file.name));
+            } else {
+              return deleteDir(path.join(dir, file.name));
+            }
+          })
+        ).then(() => deleteDir(dir));
+      }
+    },
+    () => {}
+  );
+}
+function copyFile(dir, destination) {
+  fs.promises.readdir(dir, { withFileTypes: true }).then((files) => {
+    console.log(files);
+    for (let file of files) {
+      if (!file.isFile()) {
+        fs.promises
+          .mkdir(path.join(destination, file.name), {
+            recursive: true,
+          })
+          .then(() => copyFile(path.join(dir, file.name), path.join(destination, file.name)));
+      } else {
+        fs.promises.copyFile(path.join(dir, file.name), path.join(destination, file.name));
+      }
+    }
   });
-
-// function deleteDir(dir) {
-//   fs.promises.readdir(dir, { withFileTypes: true }).then((files) => {
-//     if (!files.length) {
-//       fs.promises.rmdir(dir);
-//     }
-//     for (let file of files) {
-//       if (file.isFile()) {
-//         fs.promises.rm(dir, file.name);
-//       } else {
-//         deleteDir(path.join(dir, file.name));
-//       }
-//     }
-//   });
-// }
-// deleteDir(path.join(__dirname, 'project-dist', 'assets'));
-// fs.promises.mkdir(path.join(__dirname, 'project-dist', 'assets'), { recursive: true });
-
-// fs.promises
-//   .readdir(path.join(__dirname, 'project-dist', 'assets'))
-//   .then((files) =>
-//     Promise.all(
-//       files.map((file) => fs.promises.rm(path.join(__dirname, 'project-dist', 'assets', file)))
-//     )
-//   );
-// function copyFile(dir, destination) {
-//   fs.promises.readdir(/*path.join(__dirname, 'assets' )*/ dir, { withFileTypes: true }).then(
-//     (files) => {
-//       for (let file of files) {
-//         if (!file.isFile()) {
-//           console.log(file);
-//           fs.promises
-//             .mkdir(/*path.join(__dirname, 'project-dist', 'assets')*/ destination, file.name, {
-//               recursive: true,
-//             })
-//             .then(() => copyFile(path.join(dir, file.name)));
-//         } else {
-//           fs.promises.copyFile(path.join(dir, file.name), path.join(__dirname, 'files-copy', file));
-//         }
-//       }
-//     }
-// Promise.all(
-//   files.map((file) =>
-//     fs.promises.copyFile(
-//       path.join(__dirname, 'files', file),
-//       path.join(__dirname, 'files-copy', file)
-//     )
-//   )
-// )
-//   );
-// }
-//copyFile(path.join(__dirname, 'assets'));
+}
